@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: autoeletrica-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: autoeletrica
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - autoeletrica-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: autoeletrica-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGODB_URI: mongodb://admin:password123@mongodb:27017/autoeletrica?authSource=admin
+      JWT_SECRET: your_production_jwt_secret_here
+      JWT_EXPIRE: 7d
+    depends_on:
+      - mongodb
+    networks:
+      - autoeletrica-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: autoeletrica-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - autoeletrica-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  autoeletrica-network:
+    driver: bridge
