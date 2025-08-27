@@ -1,0 +1,35 @@
+{
+  "name": "auto-eletrica",
+  "version": "1.0.0",
+  "description": "Sistema para instaladores de rastreamento e auto elétrica automotiva",
+  "main": "index.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "server": "nodemon backend/server.js",
+    "client": "npm start --prefix frontend",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "build": "cd frontend && npm run build",
+    "install-client": "cd frontend && npm install",
+    "install-server": "cd backend && npm install",
+    "install-all": "npm run install-server && npm run install-client"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/franklinferreira53/auto-eletrica.git"
+  },
+  "keywords": [
+    "auto-eletrica",
+    "rastreamento",
+    "diagramas",
+    "veiculos"
+  ],
+  "author": "Franklin Ferreira",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/franklinferreira53/auto-eletrica/issues"
+  },
+  "homepage": "https://github.com/franklinferreira53/auto-eletrica#readme",
+  "dependencies": {
+    "concurrently": "^7.6.0"
+  }
+}

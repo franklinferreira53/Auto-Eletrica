@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800px" height="600px" viewBox="0 0 800 600" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Circuit Pattern</title>
+    <g stroke="#FFFFFF" stroke-width="1.5" fill="none" fill-rule="evenodd" opacity="0.25">
+        <path d="M50,50 L100,50 L100,100 L150,100" stroke-linecap="round"/>
+        <path d="M150,150 L200,150 L200,100" stroke-linecap="round"/>
+        <path d="M250,50 L300,50 L300,150 L350,150" stroke-linecap="round"/>
+        <path d="M400,50 L400,200 L450,200" stroke-linecap="round"/>
+        <path d="M500,50 L500,250 L550,250" stroke-linecap="round"/>
+        <circle cx="150" cy="100" r="5"/>
+        <circle cx="200" cy="100" r="5"/>
+        <circle cx="350" cy="150" r="5"/>
+        <circle cx="450" cy="200" r="5"/>
+        <circle cx="550" cy="250" r="5"/>
+        <path d="M50,300 L200,300 L200,350 L250,350" stroke-linecap="round"/>
+        <path d="M300,300 L400,300 L400,400 L500,400" stroke-linecap="round"/>
+        <path d="M550,350 L650,350 L650,450 L700,450" stroke-linecap="round"/>
+        <path d="M50,500 L150,500 L150,550 L250,550" stroke-linecap="round"/>
+        <path d="M300,500 L400,500 L400,450 L500,450" stroke-linecap="round"/>
+        <circle cx="250" cy="350" r="5"/>
+        <circle cx="500" cy="400" r="5"/>
+        <circle cx="700" cy="450" r="5"/>
+        <circle cx="250" cy="550" r="5"/>
+        <circle cx="500" cy="450" r="5"/>
+        <path d="M50,200 L100,200 L100,250 L150,250" stroke-linecap="round"/>
+        <path d="M600,100 L650,100 L650,200 L700,200" stroke-linecap="round"/>
+        <path d="M650,500 L700,500 L700,550 L750,550" stroke-linecap="round"/>
+        <circle cx="150" cy="250" r="5"/>
+        <circle cx="700" cy="200" r="5"/>
+        <circle cx="750" cy="550" r="5"/>
+    </g>
+</svg>

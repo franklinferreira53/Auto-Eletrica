@@ -1,0 +1,705 @@
+import React, { useState, useEffect } from 'react';
+import {
+    Box,
+    Button,
+    Container,
+    Typography,
+    Grid,
+    Card,
+    CardContent,
+    CardMedia,
+    CardActions,
+    Divider,
+    Paper,
+    Tabs,
+    Tab,
+    Avatar,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+    TextField,
+    InputAdornment,
+    IconButton,
+    Chip,
+    Snackbar,
+    Alert,
+    useTheme,
+    useMediaQuery,
+    Slide
+} from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
+import { styled } from '@mui/material/styles';
+import ImageWithFallback from '../components/ui/ImageWithFallback';
+import { fallbackImages } from '../utils/fallbackImages';
+
+// Icons
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
+import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+import SpeedIcon from '@mui/icons-material/Speed';
+import SearchIcon from '@mui/icons-material/Search';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import DevicesIcon from '@mui/icons-material/Devices';
+import UpdateIcon from '@mui/icons-material/Update';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import EmailIcon from '@mui/icons-material/Email';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+
+const StyledBanner = styled('div')(({ theme }) => ({
+    position: 'relative',
+    background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
+    color: theme.palette.primary.contrastText,
+    overflow: 'hidden',
+    paddingTop: theme.spacing(15),
+    paddingBottom: theme.spacing(15),
+    [theme.breakpoints.down('md')]: {
+        paddingTop: theme.spacing(10),
+        paddingBottom: theme.spacing(10),
+    },
+    '&::before': {
+        content: '""',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundImage: 'url(/images/circuit-pattern.svg)',
+        backgroundSize: 'cover',
+        opacity: 0.1,
+        zIndex: 1,
+    },
+}));
+
+const FeatureCard = styled(Card)(({ theme }) => ({
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    transition: 'transform 0.3s, box-shadow 0.3s',
+    '&:hover': {
+        transform: 'translateY(-5px)',
+        boxShadow: theme.shadows[10],
+    },
+}));
+
+const PricingCard = styled(Card)(({ featured, theme }) => ({
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    transition: 'transform 0.3s, box-shadow 0.3s',
+    border: featured ? `2px solid ${theme.palette.secondary.main}` : 'none',
+    ...(featured && {
+        position: 'relative',
+        '&::before': {
+            content: '"RECOMENDADO"',
+            position: 'absolute',
+            top: '12px',
+            right: '-30px',
+            transform: 'rotate(45deg)',
+            backgroundColor: theme.palette.secondary.main,
+            color: theme.palette.secondary.contrastText,
+            padding: '5px 30px',
+            fontSize: '0.75rem',
+            fontWeight: 'bold',
+        },
+    }),
+    '&:hover': {
+        transform: 'translateY(-5px)',
+        boxShadow: theme.shadows[10],
+    },
+}));
+
+// Componente para mostrar estatísticas
+const StatItem = ({ value, label, icon }) => {
+    return (
+        <Box sx={{ textAlign: 'center', p: 2 }}>
+            <Box sx={{ mb: 1, color: 'primary.main' }}>
+                {icon}
+            </Box>
+            <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', mb: 0.5 }}>
+                {value}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+                {label}
+            </Typography>
+        </Box>
+    );
+};
+
+// Componente FAQ para perguntas frequentes
+const FAQItem = ({ question, answer }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    return (
+        <Box sx={{ mb: 2 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    p: 2,
+                    bgcolor: 'background.paper',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    '&:hover': { bgcolor: 'action.hover' },
+                }}
+                onClick={() => setIsExpanded(!isExpanded)}
+            >
+                <Typography variant="subtitle1" fontWeight="medium">
+                    {question}
+                </Typography>
+                {isExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            </Box>
+
+            {isExpanded && (
+                <Box sx={{ p: 2, pl: 3, borderLeft: '2px solid', borderColor: 'primary.main' }}>
+                    <Typography variant="body1">{answer}</Typography>
+                </Box>
+            )}
+        </Box>
+    );
+};
+
+const HomePage = () => {
+    const [tabValue, setTabValue] = useState(0);
+    const [email, setEmail] = useState('');
+    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+    const handleTabChange = (event, newValue) => {
+        setTabValue(newValue);
+    };
+
+    const handleSubscribe = (e) => {
+        e.preventDefault();
+        // Aqui você adicionaria lógica para salvar o email
+        setOpenSnackbar(true);
+        setEmail('');
+    };
+
+    const statsData = [
+        { value: '+3500', label: 'Diagramas Disponíveis', icon: <CloudDownloadIcon sx={{ fontSize: 40 }} /> },
+        { value: '+200', label: 'Marcas e Modelos', icon: <DirectionsCarIcon sx={{ fontSize: 40 }} /> },
+        { value: '+15000', label: 'Profissionais Usando', icon: <ElectricalServicesIcon sx={{ fontSize: 40 }} /> },
+    ];
+
+    const featuresData = [
+        {
+            title: 'Diagrama de Instalação de Rastreadores',
+            description: 'Acesse diagramas detalhados para instalação precisa de rastreadores em qualquer modelo de veículo, com cores dos fios e pontos de conexão.',
+            icon: <SpeedIcon fontSize="large" color="primary" />,
+            image: '/images/tracking-diagram.jpg'
+        },
+        {
+            title: 'Diagramas Elétricos Completos',
+            description: 'Esquemas elétricos detalhados e completos para diagnóstico e reparo de problemas com eficiência e precisão.',
+            icon: <ElectricalServicesIcon fontSize="large" color="primary" />,
+            image: '/images/electrical-diagram.jpg'
+        },
+        {
+            title: 'Busca Inteligente',
+            description: 'Encontre rapidamente o diagrama que precisa usando nosso sistema avançado de busca por modelo, ano, sistema ou componente.',
+            icon: <SearchIcon fontSize="large" color="primary" />,
+            image: '/images/search-feature.jpg'
+        },
+        {
+            title: 'Atualizações Automáticas',
+            description: 'Novos diagramas são adicionados constantemente e você recebe notificações sobre atualizações importantes.',
+            icon: <UpdateIcon fontSize="large" color="primary" />,
+            image: '/images/auto-update.jpg'
+        },
+        {
+            title: 'Acesso em Qualquer Dispositivo',
+            description: 'Acesse os diagramas do seu computador, tablet ou smartphone, onde quer que você esteja.',
+            icon: <DevicesIcon fontSize="large" color="primary" />,
+            image: '/images/multi-device.jpg'
+        },
+        {
+            title: 'Download e Acesso Offline',
+            description: 'Baixe os diagramas para acessar mesmo sem internet, perfeito para trabalho em campo ou oficinas com sinal fraco.',
+            icon: <CloudDownloadIcon fontSize="large" color="primary" />,
+            image: '/images/offline-access.jpg'
+        },
+    ];
+
+    const pricingPlans = [
+        {
+            title: 'Plano Instalador',
+            price: 'R$ 89,90',
+            period: '/mês',
+            description: 'Ideal para técnicos de instalação de rastreadores',
+            features: [
+                'Acesso a diagramas de instalação de rastreadores',
+                'Busca por modelo e ano',
+                'Download de 30 diagramas/mês',
+                'Suporte básico por email',
+            ],
+            buttonText: 'Assinar Agora',
+            buttonVariant: 'outlined',
+            featured: false
+        },
+        {
+            title: 'Plano Profissional',
+            price: 'R$ 149,90',
+            period: '/mês',
+            description: 'Perfeito para auto eletricistas e oficinas',
+            features: [
+                'Acesso completo a todos os diagramas',
+                'Busca avançada com filtros',
+                'Downloads ilimitados',
+                'Atualizações em tempo real',
+                'Suporte prioritário',
+                'Acesso offline',
+            ],
+            buttonText: 'Assinar Agora',
+            buttonVariant: 'contained',
+            featured: true
+        },
+        {
+            title: 'Plano Oficina',
+            price: 'R$ 299,90',
+            period: '/mês',
+            description: 'Para equipes e oficinas com múltiplos técnicos',
+            features: [
+                'Tudo do plano profissional',
+                'Até 5 usuários simultâneos',
+                'Histórico compartilhado',
+                'Relatórios de uso',
+                'Treinamento online',
+                'Gerenciamento de equipe',
+            ],
+            buttonText: 'Assinar Agora',
+            buttonVariant: 'outlined',
+            featured: false
+        },
+    ];
+
+    const faqItems = [
+        {
+            question: 'Como faço para acessar os diagramas após a assinatura?',
+            answer: 'Após confirmar seu pagamento, você receberá um email com instruções de acesso. Basta fazer login no sistema e você terá acesso imediato a todos os diagramas incluídos no seu plano.',
+        },
+        {
+            question: 'Os diagramas podem ser usados offline?',
+            answer: 'Sim! O sistema permite que você baixe os diagramas para uso offline. Uma vez baixados, você pode acessá-los a qualquer momento, mesmo sem conexão à internet.',
+        },
+        {
+            question: 'Com que frequência os diagramas são atualizados?',
+            answer: 'Nossa equipe adiciona novos diagramas semanalmente. Além disso, fazemos atualizações nos diagramas existentes sempre que identificamos melhorias ou correções necessárias.',
+        },
+        {
+            question: 'Posso cancelar minha assinatura a qualquer momento?',
+            answer: 'Sim, você pode cancelar sua assinatura quando quiser. O acesso permanecerá ativo até o final do período já pago.',
+        },
+        {
+            question: 'Quais formas de pagamento são aceitas?',
+            answer: 'Aceitamos cartões de crédito, PIX e boleto bancário. Todos os pagamentos são processados de forma segura e você receberá acesso imediato após a confirmação do pagamento.',
+        },
+    ];
+
+    return (
+        <Box sx={{ flexGrow: 1 }}>
+            {/* Hero Section - Banner Principal */}
+            <StyledBanner>
+                <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2 }}>
+                    <Grid container spacing={4} alignItems="center">
+                        <Grid item xs={12} md={7}>
+                            <Typography variant="h2" component="h1" fontWeight="bold" gutterBottom>
+                                Sistema Completo para Auto-Elétrica e Instalação de Rastreadores
+                            </Typography>
+                            <Typography variant="h5" sx={{ mb: 3, opacity: 0.9 }}>
+                                Acesse milhares de diagramas técnicos automotivos e economize tempo em cada serviço
+                            </Typography>
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 4 }}>
+                                <Button
+                                    component={RouterLink}
+                                    to="/register"
+                                    variant="contained"
+                                    color="secondary"
+                                    size="large"
+                                    endIcon={<ArrowForwardIcon />}
+                                    sx={{ borderRadius: '30px', px: 4 }}
+                                >
+                                    Começar Agora
+                                </Button>
+                                <Button
+                                    component={RouterLink}
+                                    to="/login"
+                                    variant="outlined"
+                                    color="inherit"
+                                    size="large"
+                                    sx={{ borderRadius: '30px', px: 4 }}
+                                >
+                                    Já tenho conta
+                                </Button>
+                            </Box>
+                            <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 3 }}>
+                                {["Fácil de usar", "Atualizado constantemente", "Acesso em qualquer dispositivo"].map((item, index) => (
+                                    <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
+                                        <CheckCircleIcon sx={{ mr: 1, fontSize: 20, color: 'secondary.main' }} />
+                                        <Typography variant="body1">{item}</Typography>
+                                    </Box>
+                                ))}
+                            </Box>
+                        </Grid>
+                        <Grid item xs={12} md={5}>
+                            <ImageWithFallback
+                                src="/images/dashboard-preview.png"
+                                fallbackSrc={fallbackImages.dashboardPreview}
+                                alt="Dashboard do sistema"
+                                sx={{
+                                    width: '100%',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+                                    transform: 'perspective(1000px) rotateY(-5deg)',
+                                }}
+                            />
+                        </Grid>
+                    </Grid>
+                </Container>
+            </StyledBanner>
+
+            {/* Stats Section - Estatísticas */}
+            <Box sx={{ bgcolor: 'background.default', py: 6 }}>
+                <Container maxWidth="lg">
+                    <Grid container justifyContent="center">
+                        {statsData.map((stat, index) => (
+                            <Grid item xs={12} sm={4} key={index}>
+                                <StatItem
+                                    value={stat.value}
+                                    label={stat.label}
+                                    icon={stat.icon}
+                                />
+                            </Grid>
+                        ))}
+                    </Grid>
+                </Container>
+            </Box>
+
+            {/* Tabs Section - Seção de Abas para diferentes públicos */}
+            <Box sx={{ bgcolor: 'background.paper', py: 8 }}>
+                <Container maxWidth="lg">
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
+                        <Tabs
+                            value={tabValue}
+                            onChange={handleTabChange}
+                            aria-label="user type tabs"
+                            centered
+                            textColor="primary"
+                            indicatorColor="primary"
+                        >
+                            <Tab label="Para Instaladores de Rastreadores" />
+                            <Tab label="Para Eletricistas Automotivos" />
+                        </Tabs>
+                    </Box>
+
+                    {/* Conteúdo da aba de Instaladores de Rastreadores */}
+                    {tabValue === 0 && (
+                        <Grid container spacing={4} alignItems="center">
+                            <Grid item xs={12} md={6}>
+                                <ImageWithFallback
+                                    src="/images/tracker-installation.jpg"
+                                    fallbackSrc={fallbackImages.trackerInstallation}
+                                    alt="Instalação de rastreador"
+                                    sx={{ width: '100%', borderRadius: '8px', boxShadow: theme.shadows[5] }}
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                                <Typography variant="h4" component="h2" gutterBottom>
+                                    Solução completa para instaladores de rastreadores
+                                </Typography>
+                                <Typography variant="body1" paragraph>
+                                    Acesse diagramas detalhados com a localização exata dos pontos de conexão, cores dos fios e especificações técnicas para instalação de rastreadores em veículos de todas as marcas e modelos.
+                                </Typography>
+                                <List>
+                                    {[
+                                        'Diagramas específicos para instalação de rastreadores',
+                                        'Localização precisa de conectores e centrais elétricas',
+                                        'Cores dos fios de alimentação, ignição e sinal',
+                                        'Dicas de instalação e solução de problemas',
+                                        'Guias de conexão para mais de 200 modelos',
+                                    ].map((item, index) => (
+                                        <ListItem key={index} sx={{ py: 1 }}>
+                                            <ListItemIcon sx={{ minWidth: '36px' }}>
+                                                <CheckCircleIcon color="primary" />
+                                            </ListItemIcon>
+                                            <ListItemText primary={item} />
+                                        </ListItem>
+                                    ))}
+                                </List>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    size="large"
+                                    component={RouterLink}
+                                    to="/register?plan=installer"
+                                    sx={{ mt: 2 }}
+                                >
+                                    Comece com 7 dias grátis
+                                </Button>
+                            </Grid>
+                        </Grid>
+                    )}
+
+                    {/* Conteúdo da aba de Eletricistas Automotivos */}
+                    {tabValue === 1 && (
+                        <Grid container spacing={4} alignItems="center">
+                            <Grid item xs={12} md={6} order={{ xs: 2, md: 1 }}>
+                                <Typography variant="h4" component="h2" gutterBottom>
+                                    Ferramentas essenciais para auto-eletricistas
+                                </Typography>
+                                <Typography variant="body1" paragraph>
+                                    Tenha acesso a diagramas elétricos completos, esquemas de circuito e informações técnicas detalhadas para diagnóstico e reparo de sistemas elétricos em veículos de todas as marcas.
+                                </Typography>
+                                <List>
+                                    {[
+                                        'Diagramas elétricos completos e detalhados',
+                                        'Esquemas de conexão de módulos e centrais',
+                                        'Especificações de componentes e valores de referência',
+                                        'Procedimentos de teste e diagnóstico',
+                                        'Diagramas específicos para cada sistema (iluminação, injeção, etc)',
+                                    ].map((item, index) => (
+                                        <ListItem key={index} sx={{ py: 1 }}>
+                                            <ListItemIcon sx={{ minWidth: '36px' }}>
+                                                <CheckCircleIcon color="primary" />
+                                            </ListItemIcon>
+                                            <ListItemText primary={item} />
+                                        </ListItem>
+                                    ))}
+                                </List>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    size="large"
+                                    component={RouterLink}
+                                    to="/register?plan=electrician"
+                                    sx={{ mt: 2 }}
+                                >
+                                    Comece com 7 dias grátis
+                                </Button>
+                            </Grid>
+                            <Grid item xs={12} md={6} order={{ xs: 1, md: 2 }}>
+                                <ImageWithFallback
+                                    src="/images/auto-electrician.jpg"
+                                    fallbackSrc={fallbackImages.autoElectrician}
+                                    alt="Auto eletricista trabalhando"
+                                    sx={{ width: '100%', borderRadius: '8px', boxShadow: theme.shadows[5] }}
+                                />
+                            </Grid>
+                        </Grid>
+                    )}
+                </Container>
+            </Box>
+
+            {/* Features Section - Recursos do Sistema */}
+            <Box sx={{ bgcolor: 'background.default', py: 8 }}>
+                <Container maxWidth="lg">
+                    <Typography variant="h4" component="h2" align="center" gutterBottom>
+                        Recursos que Fazem a Diferença
+                    </Typography>
+                    <Typography variant="subtitle1" align="center" color="text.secondary" paragraph sx={{ mb: 6 }}>
+                        Conheça as ferramentas que tornarão seu trabalho mais eficiente
+                    </Typography>
+
+                    <Grid container spacing={4}>
+                        {featuresData.map((feature, index) => (
+                            <Grid item xs={12} sm={6} md={4} key={index}>
+                                <FeatureCard>
+                                    <CardMedia
+                                        component="img"
+                                        height="180"
+                                        image={feature.image}
+                                        alt={feature.title}
+                                    />
+                                    <CardContent sx={{ flexGrow: 1 }}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                                            {feature.icon}
+                                            <Typography variant="h6" component="h3" sx={{ ml: 1 }}>
+                                                {feature.title}
+                                            </Typography>
+                                        </Box>
+                                        <Typography variant="body2" color="text.secondary">
+                                            {feature.description}
+                                        </Typography>
+                                    </CardContent>
+                                </FeatureCard>
+                            </Grid>
+                        ))}
+                    </Grid>
+                </Container>
+            </Box>
+
+            {/* Pricing Section - Planos */}
+            <Box sx={{ bgcolor: 'background.paper', py: 8 }}>
+                <Container maxWidth="lg">
+                    <Typography variant="h4" component="h2" align="center" gutterBottom>
+                        Planos e Preços
+                    </Typography>
+                    <Typography variant="subtitle1" align="center" color="text.secondary" paragraph sx={{ mb: 6 }}>
+                        Escolha o plano ideal para suas necessidades
+                    </Typography>
+
+                    <Grid container spacing={4} justifyContent="center">
+                        {pricingPlans.map((plan, index) => (
+                            <Grid item xs={12} sm={6} md={4} key={index}>
+                                <PricingCard featured={plan.featured}>
+                                    <CardContent sx={{ flexGrow: 1 }}>
+                                        <Typography variant="h5" component="h3" gutterBottom align="center">
+                                            {plan.title}
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'baseline', mb: 2 }}>
+                                            <Typography component="h4" variant="h3" fontWeight="bold">
+                                                {plan.price}
+                                            </Typography>
+                                            <Typography variant="subtitle1" color="text.secondary">
+                                                {plan.period}
+                                            </Typography>
+                                        </Box>
+                                        <Typography variant="subtitle1" align="center" sx={{ mb: 3 }}>
+                                            {plan.description}
+                                        </Typography>
+                                        <Divider sx={{ my: 2 }} />
+                                        <List sx={{ mb: 2 }}>
+                                            {plan.features.map((feature, idx) => (
+                                                <ListItem key={idx} sx={{ py: 1, px: 0 }}>
+                                                    <ListItemIcon sx={{ minWidth: '36px' }}>
+                                                        <CheckCircleIcon color={plan.featured ? "secondary" : "primary"} />
+                                                    </ListItemIcon>
+                                                    <ListItemText primary={feature} />
+                                                </ListItem>
+                                            ))}
+                                        </List>
+                                    </CardContent>
+                                    <CardActions sx={{ justifyContent: 'center', pb: 3 }}>
+                                        <Button
+                                            component={RouterLink}
+                                            to={`/register?plan=${plan.title.toLowerCase().replace(' ', '-')}`}
+                                            variant={plan.buttonVariant}
+                                            color={plan.featured ? "secondary" : "primary"}
+                                            size="large"
+                                            fullWidth
+                                        >
+                                            {plan.buttonText}
+                                        </Button>
+                                    </CardActions>
+                                </PricingCard>
+                            </Grid>
+                        ))}
+                    </Grid>
+                </Container>
+            </Box>
+
+            {/* FAQ Section - Perguntas Frequentes */}
+            <Box sx={{ bgcolor: 'background.default', py: 8 }}>
+                <Container maxWidth="lg">
+                    <Typography variant="h4" component="h2" align="center" gutterBottom>
+                        Perguntas Frequentes
+                    </Typography>
+                    <Typography variant="subtitle1" align="center" color="text.secondary" paragraph sx={{ mb: 6 }}>
+                        Encontre respostas para as dúvidas mais comuns
+                    </Typography>
+
+                    <Box sx={{ maxWidth: '800px', mx: 'auto' }}>
+                        {faqItems.map((item, index) => (
+                            <FAQItem key={index} question={item.question} answer={item.answer} />
+                        ))}
+                    </Box>
+                </Container>
+            </Box>
+
+            {/* CTA Section - Chamada para Ação */}
+            <Box sx={{ bgcolor: 'primary.main', color: 'primary.contrastText', py: 8 }}>
+                <Container maxWidth="md" sx={{ textAlign: 'center' }}>
+                    <Typography variant="h4" component="h2" gutterBottom>
+                        Pronto para revolucionar seu trabalho?
+                    </Typography>
+                    <Typography variant="subtitle1" paragraph sx={{ mb: 4 }}>
+                        Junte-se a mais de 15.000 profissionais que já estão economizando tempo e aumentando a precisão em seus serviços.
+                    </Typography>
+                    <Button
+                        component={RouterLink}
+                        to="/register"
+                        variant="contained"
+                        color="secondary"
+                        size="large"
+                        sx={{ borderRadius: '30px', px: 4, py: 1.5 }}
+                    >
+                        Comece Agora com 7 Dias Grátis
+                    </Button>
+
+                    <Divider sx={{ my: 5, bgcolor: 'rgba(255,255,255,0.2)' }} />
+
+                    <Typography variant="h5" gutterBottom>
+                        Assine nossa newsletter
+                    </Typography>
+                    <Typography variant="body1" sx={{ mb: 3 }}>
+                        Receba dicas, novidades e atualizações sobre diagramas automotivos
+                    </Typography>
+
+                    <Box
+                        component="form"
+                        onSubmit={handleSubscribe}
+                        sx={{
+                            display: 'flex',
+                            flexDirection: isMobile ? 'column' : 'row',
+                            gap: 2,
+                            maxWidth: '500px',
+                            mx: 'auto',
+                        }}
+                    >
+                        <TextField
+                            fullWidth
+                            placeholder="Seu melhor email"
+                            variant="outlined"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            sx={{
+                                bgcolor: 'rgba(255,255,255,0.9)',
+                                borderRadius: '4px',
+                                '& .MuiOutlinedInput-root': {
+                                    '& fieldset': {
+                                        borderColor: 'transparent',
+                                    },
+                                },
+                            }}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <EmailIcon color="primary" />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            color="secondary"
+                            sx={{ px: 4, py: isMobile ? 1.5 : undefined }}
+                        >
+                            Inscrever-me
+                        </Button>
+                    </Box>
+                </Container>
+            </Box>
+
+            <Snackbar
+                open={openSnackbar}
+                autoHideDuration={6000}
+                onClose={() => setOpenSnackbar(false)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert onClose={() => setOpenSnackbar(false)} severity="success">
+                    Email cadastrado com sucesso! Você receberá nossas novidades.
+                </Alert>
+            </Snackbar>
+        </Box>
+    );
+};
+
+export default HomePage;
